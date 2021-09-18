@@ -64,7 +64,7 @@ Shader "Custom/UI/BlackBlur" {
 			{
 				half4 sum = half4(0,0,0,0);
 
-				#define GRABPIXEL(weight,kernelx) tex2Dproj( _GrabTexture, UNITY_PROJ_COORD(float4(i.uvgrab.x + _GrabTexture_TexelSize.x * kernelx*_Size, i.uvgrab.y, i.uvgrab.z, i.uvgrab.w))) * weight
+				#define GRABPIXEL(weight,kernelx) tex2Dproj( _GrabTexture, UNITY_PROJ_COORD(float4(i.uvgrab.x + _GrabTexture_TexelSize.x * kernelx*_Size * i.uvgrab.w, i.uvgrab.y, i.uvgrab.z, i.uvgrab.w))) * weight
 
 				/*sum += GRABPIXEL(0.05, -4.0);
 				sum += GRABPIXEL(0.09, -3.0);
@@ -146,7 +146,7 @@ Shader "Custom/UI/BlackBlur" {
 			{
 				half4 sum = half4(0,0,0,0);
 
-				#define GRABPIXEL(weight,kernely) tex2Dproj( _GrabTexture, UNITY_PROJ_COORD(float4(i.uvgrab.x, i.uvgrab.y + _GrabTexture_TexelSize.y * kernely*_Size * 1.61, i.uvgrab.z, i.uvgrab.w))) * weight
+				#define GRABPIXEL(weight,kernely) tex2Dproj( _GrabTexture, UNITY_PROJ_COORD(float4(i.uvgrab.x, i.uvgrab.y + _GrabTexture_TexelSize.y * kernely*_Size * i.uvgrab.w, i.uvgrab.z, i.uvgrab.w))) * weight
 
 
 				/*sum += GRABPIXEL(0.05, -4.0);
