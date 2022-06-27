@@ -1,4 +1,4 @@
-﻿// Unity built-in shader source. Copyright (c) 2016 Unity Technologies. MIT license (see license.txt)
+// Unity built-in shader source. Copyright (c) 2016 Unity Technologies. MIT license (see license.txt)
 
 Shader "UI/Default"
 {
@@ -102,8 +102,18 @@ Shader "UI/Default"
                 {
                     half4 color = tex2D(_MainTex, IN.texcoord) + _TextureSampleAdd;
                     float c = 0.299 * color.r + 0.587 * color.g + 0.184 * color.b;
-                    color.rgb = IN.color.r == 0 ? lerp(color.rgb, half3(c, c, c), IN.color.g) : (IN.color.b == 0 ? lerp(color.rgb, _Color.rgb, IN.color.g) : color.rgb * IN.color + _OverColor.rgb);
-                    color.a = color.a * IN.color.a;
+
+                    half grayFlag = step(IN.color.r, 0);
+                    half3 grayColor = lerp(color.rgb, half3(c, c, c), IN.color.g) * _Color.rgb;
+
+                    half tintFlag = step(IN.color.b + grayFlag, 0);
+                    half3 tintColor = lerp(color.rgb, _Color.rgb, IN.color.g);
+
+                    half overFlag = step(tintFlag + grayFlag, 0);
+                    half3 overColor = color.rgb * IN.color + _OverColor.rgb;
+                    //color.rgb = IN.color.r == 0 ? lerp(color.rgb, half3(c, c, c), IN.color.g) * _Color.rgb : (IN.color.b == 0 ? lerp(color.rgb, _Color.rgb, IN.color.g) : color.rgb * IN.color + _OverColor.rgb);
+                    color.rgb = grayFlag * grayColor + tintFlag * tintColor + overFlag * overColor;
+                    color.a = color.a * IN.color.a * (lerp(1, _Color.a, step(IN.color.r, 0)));
 
                     #ifdef UNITY_UI_CLIP_RECT
                     color.a *= UnityGet2DClipping(IN.worldPosition.xy, _ClipRect);
