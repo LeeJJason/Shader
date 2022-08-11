@@ -101,19 +101,20 @@ Shader "UI/Default"
                 fixed4 frag(v2f IN) : SV_Target
                 {
                     half4 color = tex2D(_MainTex, IN.texcoord) + _TextureSampleAdd;
-                    float c = 0.299 * color.r + 0.587 * color.g + 0.184 * color.b;
-
-                    half grayFlag = step(IN.color.r, 0);
-                    half3 grayColor = lerp(color.rgb, half3(c, c, c), IN.color.g) * _Color.rgb;
-
-                    half tintFlag = step(IN.color.b + grayFlag, 0);
-                    half3 tintColor = lerp(color.rgb, _Color.rgb, IN.color.g);
-
-                    half overFlag = step(tintFlag + grayFlag, 0);
-                    half3 overColor = color.rgb * IN.color + _OverColor.rgb;
-                    //color.rgb = IN.color.r == 0 ? lerp(color.rgb, half3(c, c, c), IN.color.g) * _Color.rgb : (IN.color.b == 0 ? lerp(color.rgb, _Color.rgb, IN.color.g) : color.rgb * IN.color + _OverColor.rgb);
-                    color.rgb = grayFlag * grayColor + tintFlag * tintColor + overFlag * overColor;
-                    color.a = color.a * IN.color.a * (lerp(1, _Color.a, step(IN.color.r, 0)));
+                    if(IN.color.r == 0)
+                    {
+                        half c = dot(color.rgb, half3(0.299, 0.587, 0.184));
+                        color = half4(lerp(color.rgb, half3(c, c, c), IN.color.g), color.a) * _Color;
+                    }
+                    else if(IN.color.b == 0)
+                    {
+                        color.rgb = lerp(color.rgb, _Color.rgb, IN.color.g);
+                        color.a = color.a * IN.color.a;
+                    }
+                    else
+                    {
+                        color = color * IN.color + _OverColor;
+                    }
 
                     #ifdef UNITY_UI_CLIP_RECT
                     color.a *= UnityGet2DClipping(IN.worldPosition.xy, _ClipRect);
